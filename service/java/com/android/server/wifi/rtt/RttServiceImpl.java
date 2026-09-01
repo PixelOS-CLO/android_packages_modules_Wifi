@@ -102,6 +102,7 @@ import com.android.server.wifi.hal.WifiRttController;
 import com.android.server.wifi.proto.nano.WifiMetricsProto;
 import com.android.server.wifi.usd.UsdRequestManager;
 import com.android.server.wifi.util.StringUtil;
+import com.android.server.wifi.util.NativeUtil;
 import com.android.server.wifi.util.WifiPermissionsUtil;
 import com.android.wifi.flags.Flags;
 import com.android.wifi.resources.R;
@@ -821,7 +822,9 @@ public class RttServiceImpl extends IWifiRttManager.Stub {
                     mWifiConfigManager.getConfiguredNetworkWithPassword(translatedSsid,
                             securityType);
             if (wifiConfiguration != null) {
-                pasnConfig.setPassword(wifiConfiguration.preSharedKey);
+                // Strip enclosing quotes from preSharedKey before passing to PASN.
+                pasnConfig.setPassword(
+                        NativeUtil.removeEnclosingQuotes(wifiConfiguration.preSharedKey));
             }
         }
     }
