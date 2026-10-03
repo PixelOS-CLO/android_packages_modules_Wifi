@@ -6119,6 +6119,7 @@ public class ClientModeImpl extends StateMachine implements ClientMode {
                         break;
                     }
                     handleNetworkConnectionEventInfo(config, connectionInfo);
+                    mWifiBlocklistMonitor.noteL2ConnectionEstablished(mLastBssid, config.SSID);
                     mWifiInfo.setMacAddress(mWifiNative.getMacAddress(mInterfaceName));
 
                     ScanDetailCache scanDetailCache =
@@ -7025,8 +7026,12 @@ public class ClientModeImpl extends StateMachine implements ClientMode {
                             (NetworkConnectionEventInfo) message.obj;
                     mLastNetworkId = connectionInfo.networkId;
                     mWifiMetrics.onRoamComplete(mInterfaceName);
-                    handleNetworkConnectionEventInfo(
-                            getConnectedWifiConfigurationInternal(), connectionInfo);
+                    WifiConfiguration roamedConfig = getConnectedWifiConfigurationInternal();
+                    handleNetworkConnectionEventInfo(roamedConfig, connectionInfo);
+                    if (roamedConfig != null) {
+                        mWifiBlocklistMonitor.noteL2ConnectionEstablished(
+                                connectionInfo.bssid, roamedConfig.SSID);
+                    }
                     mWifiInfo.setMacAddress(mWifiNative.getMacAddress(mInterfaceName));
                     updateLayer2Information();
                     updateCurrentConnectionInfo();

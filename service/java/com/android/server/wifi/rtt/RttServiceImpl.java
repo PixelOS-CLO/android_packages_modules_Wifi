@@ -2311,6 +2311,19 @@ public class RttServiceImpl extends IWifiRttManager.Stub {
             } else {
                 newRequestBuilder.addResponder(responder);
             }
+            try {
+                newRequestBuilder.setRttBurstSize(request.getRttBurstSize());
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "validateAndUpdateContinuousRangingRequest:" +
+                "setRttBurstSize failed -- " + e);
+                handleContinuousRangingRequestFailure(callback, binder, dr,
+                        ContinuousRangingResultCallback.FAILURE_REASON_GENERIC);
+                return null;
+            }
+            newRequestBuilder.setSecurityMode(request.getSecurityMode());
+            if (request.getVendorData() != null) {
+                newRequestBuilder.setVendorData(request.getVendorData());
+            }
             return newRequestBuilder.build();
         }
 
